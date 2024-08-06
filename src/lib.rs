@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-fn build_sa(s: &str) -> Vec<usize> {
+fn build_sa_by_comparison(s: &str) -> Vec<usize> {
     let n = s.len();
     let mut sa = (0..n).map(|x| x).collect::<Vec<usize>>();
     let mut rank = s
@@ -9,11 +9,8 @@ fn build_sa(s: &str) -> Vec<usize> {
         .map(|&c| c as usize)
         .collect::<Vec<usize>>();
     let mut gap = 1;
-
-    let mut temp_rank = vec![0; n];
-
-    while temp_rank[n - 1] != n - 1 {
-        sa.sort_by(|&i, &j| {
+    while gap < n {
+        let sorting = |&i: &usize, &j: &usize| {
             if rank[i] != rank[j] {
                 rank[i].cmp(&rank[j])
             } else {
@@ -25,29 +22,19 @@ fn build_sa(s: &str) -> Vec<usize> {
                     j.cmp(&i)
                 }
             }
-        });
+        };
+
+        sa.sort_by(sorting);
+        let mut nrank = vec![0; n];
         for i in 0..(n - 1) {
-            let add = if rank[sa[i]] != rank[sa[i + 1]] {
-                rank[sa[i]].cmp(&rank[sa[i + 1]])
-            } else {
-                let a = sa[i] + gap;
-                let b = sa[i + 1] + gap;
-                if a < n && b < n {
-                    rank[a].cmp(&rank[b])
-                } else {
-                    b.cmp(&a)
-                }
-            };
-            let add = match add {
+            let add = match sorting(&sa[i], &sa[i + 1]) {
                 std::cmp::Ordering::Less => 1,
                 _ => 0,
             };
-            temp_rank[i + 1] = temp_rank[i] + add;
+            nrank[sa[i + 1]] = nrank[sa[i]] + add;
         }
-        for i in 0..n {
-            rank[sa[i]] = temp_rank[i];
-        }
-        gap *= 2;
+        rank = nrank.clone();
+        gap <<= 1;
     }
 
     sa
@@ -58,6 +45,9 @@ mod test {
     use super::*;
     #[test]
     fn test1() {
-        assert_eq!(build_sa("banana"), vec![5, 3, 1, 0, 4, 2]);
+        assert_eq!(build_sa_by_comparison("banana"), vec![5, 3, 1, 0, 4, 2]);
     }
+
+    #[test]
+    fn test2() {}
 }
