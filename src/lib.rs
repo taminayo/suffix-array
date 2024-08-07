@@ -112,6 +112,36 @@ fn build_sa_by_non_comparison(s: String) -> Vec<usize> {
     sa
 }
 
+fn build_lcpa(s: String) -> Vec<usize> {
+    let n = s.len() + 1;
+    let sa = build_sa_by_non_comparison(s.clone());
+    let s = s + "$";
+    let s = s.as_bytes();
+    let mut lcpa = vec![0; n];
+    let mut pos = vec![0; n];
+    sa.iter().enumerate().for_each(|(i, &c)| {
+        pos[c] = i;
+    });
+
+    let mut k = 0;
+    for i in 0..n {
+        let curr = pos[i];
+        if curr == n - 1 {
+            continue;
+        }
+        let j = sa[curr + 1];
+        while i + k < n && j + k < n && s[i + k] == s[j + k] {
+            k += 1;
+        }
+        lcpa[curr + 1] = k;
+        if k > 0 {
+            k -= 1;
+        }
+    }
+
+    lcpa
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -136,6 +166,15 @@ mod test {
         assert_eq!(
             build_sa_by_non_comparison("mississipi".to_owned()),
             vec![10, 9, 7, 4, 1, 0, 8, 6, 3, 5, 2]
+        );
+    }
+
+    #[test]
+    fn test3() {
+        assert_eq!(build_lcpa("banana".to_owned()), vec![0, 0, 1, 3, 0, 0, 2]);
+        assert_eq!(
+            build_lcpa("mississipi".to_owned()),
+            vec![0, 0, 1, 1, 4, 0, 0, 0, 2, 1, 3]
         );
     }
 }
