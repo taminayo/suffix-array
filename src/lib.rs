@@ -65,11 +65,11 @@ fn build_sa_by_non_comparison(s: String) -> Vec<usize> {
         for i in 0..(mx - 1) {
             freq[i + 1] += freq[i];
         }
-        let mut pos = vec![0; n + 1];
+        let mut nsa = vec![0; n + 1];
         for i in (0..=n).rev() {
             let curr_rank = rank[(i + gap).min(n)];
             freq[curr_rank] -= 1;
-            pos[freq[curr_rank]] = i;
+            nsa[freq[curr_rank]] = i;
         }
 
         freq = vec![0; mx];
@@ -81,9 +81,9 @@ fn build_sa_by_non_comparison(s: String) -> Vec<usize> {
             freq[i + 1] += freq[i];
         }
         for i in (0..=n).rev() {
-            let curr = rank[pos[i]];
+            let curr = rank[nsa[i]];
             freq[curr] -= 1;
-            sa[freq[curr]] = pos[i];
+            sa[freq[curr]] = nsa[i];
         }
 
         let sorting = |&i: &usize, &j: &usize| {
